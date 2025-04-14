@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def energy_convergence(results, e_0):
+def energy_convergence(results, e_0,n_iter):
     """
     Plots the energy convergence of multiple models from the results list.
 
@@ -28,13 +28,15 @@ def energy_convergence(results, e_0):
         )
 
     # Exakter Energiewert als Referenzlinie
-    ax.axhline(e_0, color="red", linestyle="--", label="Exact")
+    if e_0 is not None:
+        ax.axhline(e_0, color="red", linestyle="dotted", label="Exact")
 
     # Formatierung
     ax.set_title("Energy Convergence of Models")
     ax.set_xlabel("Iterations")
     ax.set_ylabel("Energy (Re)")
     ax.legend()
+    ax.set_xlim(0, n_iter)
     ax.grid(True)
 
     plt.tight_layout()
