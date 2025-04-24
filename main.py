@@ -21,8 +21,6 @@ def main1d():
     hi = nk.hilbert.Fock(n_max=N_max, N=N_modes) # 1D
     
     H, e_0 = build_hamilton_1d(hi, N_modes, N_max, omega, alpha_coupling)
-    
-    #H, e_0 = build_hamilton_3d(hi, N_modes, N_max, omega, alpha_coupling)
     #e_0, v_0 = exact_dense(H)
     #e_0, v_0 = aprox_sol_sparse(H)
     v_0 = None
