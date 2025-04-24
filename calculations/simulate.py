@@ -4,6 +4,7 @@ import pandas as pd
 from .solver import compute_overlap
 import netket as nk
 
+
 log_path = "/Users/julianblasek/master_local/praktikum/plots/results.tsv"
 
 def run_single(model_class, model_kwargs, train_params, hi, H, seed=None):
@@ -38,9 +39,12 @@ def run_all(models_to_run,hi,H,e_0, v_0):
         
         if e_0 is None:
             error= None
-            overlap = None
         else:
             error = abs((energy.mean - e_0) / e_0)
+            
+        if v_0 is None:
+            overlap = None
+        else:
             overlap = compute_overlap(v_0, vstate)
 
         results.append({
@@ -54,21 +58,31 @@ def run_all(models_to_run,hi,H,e_0, v_0):
         if e_0 is not None:
             energy_round_model=f"{energy.mean.real:.3f}"
             energy_round_exact=f"{e_0:.3f}"
-            error_round=f"{error * 100:.2f}"
-            overlap_round=f"{overlap * 100:.2f}"
-            tabelle.append({
+            error_round=f"{error * 100:.2f}"  
+        else:
+            energy_round_model=f"{energy.mean.real:.3f}"
+            energy_round_exact=None
+            error_round=None
+            
+            
+            
+        if overlap is not None:
+            overlap_round=f"{overlap:.2f}"
+        else:
+            overlap_round=None
+        
+        
+        
+        
+    tabelle.append({
                 "name": model_info["name"],
                 "e_model": energy_round_model,
                 "e_exact": energy_round_exact,
                 "error (%)": error_round,
                 "overlap (%)": overlap_round,
-            })
-        else:
-            energy_round=f"{energy.mean.real:.2f}"
-            tabelle.append({
-                "name": model_info["name"],
-                "e_model": energy_round,
-            })
+            })    
+        
+        
         
     tabelle = pd.DataFrame(tabelle)
     
