@@ -12,17 +12,6 @@ def norm_k(k1,k2,k3):
 
 
 
-def build_hamilton(hi,N_modes, N_max, omega, alpha_coupling):
-    """
-    Build the Hamiltonian for the Fröhlich model.
-    """
-
-    # Hamiltonian
-    H = sum(omega * number(hi, i) for i in range(N_modes))
-    H += sum(alpha_coupling * (create(hi, i) + destroy(hi, i)) for i in range(N_modes))
-
-    return H
-
 
 
 # Alternative Hamiltonian with coupling depending on k
