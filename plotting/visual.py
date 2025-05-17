@@ -29,7 +29,8 @@ def energy_convergence(results, e_0,n_iter):
 
     # Exakter Energiewert als Referenzlinie
     if e_0 is not None:
-        ax.axhline(e_0, color="red", linestyle="dotted", label="Exact")
+        ax.axhline(e_0, color="red", linestyle="dotted", label=f"Exact (e₀ = {e_0:.4f})")
+
 
     # Formatierung
     ax.set_title("Energy Convergence of Models")

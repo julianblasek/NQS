@@ -67,7 +67,7 @@ def build_hamilton_3d(hi,N_modes, N_max, omega, alpha_coupling):
                 H += coupling(i,j,k) * (create(hi, ijk) + destroy(hi, ijk))
                 e_0 += -1*alpha_coupling**2 /(omega* current_norm**2)
     
-    print("e_0:", e_0)
+    #print("e_0:", e_0)
     return H, e_0
 
 def map_k_to_index(k1, k2, k3, N_modes):

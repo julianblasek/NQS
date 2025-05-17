@@ -39,18 +39,20 @@ def evaluation(energy_list, error_list, e_0):
     return e_mean, total_error
 
 
-def main1d():
+def main1d(i):
     hi = nk.hilbert.Fock(n_max=N_max, N=N_modes) # 1D
     
     H, e_0 = build_hamilton_1d(hi, N_modes, N_max, omega, alpha_coupling)
     #e_0, v_0 = exact_dense(H)
     #e_0, v_0 = aprox_sol_sparse(H)
     v_0 = None
-    
+    print("Energy to approximate: ", round(e_0,4))
+    dev = 100 * (abs(e_0 + np.pi**2 / 3) / (np.pi**2 / 3))
+    print("Deviation from analytic solution:", round(dev, 2), "%")
     
     models_to_run = [
         {
-            "name": "FFN_1",
+            "name": "FFN_1D",
             "class": FFN,
             "net_params": {"alpha": alpha, "beta": beta},
             "train_params": {"lr": lr, "n_samples": n_samples, "n_iter": n_iter, "sr": sr},
@@ -59,17 +61,19 @@ def main1d():
     ]
 
     results = run_all(models_to_run,hi,H,e_0, v_0)
-    
-
+    nqs_deviation = 100 * (abs(e_0 - results[0]["energy"]) / (-e_0))
+    print(f"NQS({i+1}) Deviation:", round(nqs_deviation, 2), "%")
     # --- Vergleichsplots ---
     energy_convergence(results, e_0,n_iter)
     #state_chart(results, v_0,hi)
     return results, e_0
 
 
-def main3d():
+def main3d(i):
     hi = nk.hilbert.Fock(n_max=N_max, N=(N_modes+1)**3) # 3D
     H, e_0 = build_hamilton_3d(hi, N_modes, N_max, omega, alpha_coupling)
+    print("Hilbert dimension: ", hi.size)
+    print("Energy to approximate: ", round(e_0,4))
     #e_0, v_0 = exact_dense(H)
     #e_0, v_0 = aprox_sol_sparse(H)
     v_0 = None
@@ -77,17 +81,17 @@ def main3d():
     
     models_to_run = [
         {
-            "name": "FFN_1",
+            "name": "FFN_3D",
             "class": FFN,
             "net_params": {"alpha": alpha, "beta": beta},
-            "train_params": {"lr": lr, "n_samples": n_samples, "n_iter": n_iter},
+            "train_params": {"lr": lr, "n_samples": n_samples, "n_iter": n_iter, "sr": sr},
         },
 
     ]
 
     results = run_all(models_to_run,hi,H,e_0, v_0)
-    
-
+    nqs_deviation = 100 * (abs(e_0 - results[0]["energy"]) / (-e_0))
+    print(f"NQS({i+1}) Deviation:", round(nqs_deviation, 2), "%")
     # --- Vergleichsplots ---
     energy_convergence(results, e_0,n_iter)
     #state_chart(results, v_0,hi)
@@ -99,9 +103,10 @@ def main3d():
 if __name__ == "__main__":
     energy_list = []
     error_list = []
-    for i in range(5):
+    for i in range(2):
         print(f"Run {i+1}")
-        results,e_0 = main1d()
+        #results,e_0 = main1d(i)
+        results,e_0 = main1d(i)
         energy_list.append(results[0]["energy"])
         error_list.append(results[0]["error"])
         

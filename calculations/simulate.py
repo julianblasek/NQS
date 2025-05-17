@@ -20,11 +20,12 @@ def run_single(model_class, model_kwargs, train_params, hi, H, seed=None):
     
     
     optimizer = nk.optimizer.Sgd(learning_rate=lr)
-    #optimizer = nk.optimizer.Adam(learning_rate=lr, b1=0.9, b2=0.999, eps=1e-08)
     preconditioner = nk.optimizer.SR(diag_shift=sr)
     gs = nk.driver.VMC(H, optimizer, variational_state=vstate, preconditioner=preconditioner)
     log = nk.logging.RuntimeLog()
     
+    
+    #maybe for schleife mit different n_samples über teilebereiche von n_iter
     gs.run(n_iter=n_iter, out=log)
     return vstate, log
 
@@ -37,10 +38,6 @@ def run_all(models_to_run,hi,H,e_0, v_0):
 
         
         energy = vstate.expect(H)
-    
-        
-        # Extract sigma^2 (variance) from the log object
-        sigma = log["Energy"]["Sigma"][-1]
 
         
         if v_0 is None:
@@ -53,11 +50,11 @@ def run_all(models_to_run,hi,H,e_0, v_0):
             "vstate": vstate,
             "log": log,
             "energy": energy.mean.real,
-            "error": sigma,        
+            "error": energy.error_of_mean.real,        
         })
         energy_round_model=f"{energy.mean.real:.3f}"
         energy_round_exact=f"{e_0:.3f}"
-        error_round = f"{np.sqrt(sigma):.3f}" 
+        error_round = f"{np.sqrt(energy.error_of_mean.real):.3f}" 
 
         if overlap is not None:
             overlap_round=f"{overlap:.2f}"
