@@ -62,7 +62,7 @@ alpha: int = 2
 beta: int = 1
 
 #: Monte-Carlo samples per VMC iteration.
-n_samples: int = 2 ** 12      # 4096
+n_samples: int = 2 ** 12      
 
 #: Stochastic-gradient learning rate.
 lr: float = 0.01

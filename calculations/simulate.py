@@ -12,7 +12,6 @@ This module keeps **all run-time logistics** in one place:
   human-readable TSV file, and returns a list of dictionaries
   compatible with the plotting utilities.
 
-
 Layout
 ------
 1.  Imports & global settings
@@ -26,12 +25,13 @@ Layout
 import os
 import numpy as np
 import pandas as pd
-from .solver import compute_overlap            # exact-state overlap helper
+
+# exact-state overlap helper
+from .solver import compute_overlap           
 import netket as nk
 
 # Absolute path of the cumulative results table (TSV, one line per run)
 log_path = "/Users/julianblasek/local/praktikum/plots/results.tsv"
-
 
 # ──────────────────────────────────────────────────────────────
 # 2. LOW-LEVEL VMC HELPER
@@ -72,13 +72,15 @@ def run_single(model_class, model_kwargs, train_params, hi, H, seed=None):
     model = model_class(**model_kwargs)
 
     # ExactSampler would enumerate *all* Fock states (expensive);
-    # Metropolis with local moves is far cheaper in practice.
     # sampler = nk.sampler.ExactSampler(hi)
+    
+    # Metropolis with local moves is far cheaper in practice.
     sampler = nk.sampler.Metropolis(
         hi,
         n_chains=n_samples,
         rule=nk.sampler.rules.LocalRule(),
     )
+    
     vstate = nk.vqs.MCState(sampler, model, n_samples=n_samples, seed=seed)
 
     # ── 2.3 Optimiser & SR preconditioner ───────────────────────────
@@ -92,6 +94,7 @@ def run_single(model_class, model_kwargs, train_params, hi, H, seed=None):
         variational_state=vstate,
         preconditioner=preconditioner,
     )
+    
     log = nk.logging.RuntimeLog()
     gs.run(n_iter=n_iter, out=log)
 
@@ -177,6 +180,7 @@ def run_all(models_to_run, hi, H, e_0, v_0):
     if os.path.exists(log_path):
         existing_log = pd.read_csv(log_path, sep="\t")
         full_log = pd.concat([existing_log, tabelle], ignore_index=True)
+        
     else:
         full_log = tabelle
 

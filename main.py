@@ -2,12 +2,13 @@
 main.py ― Driver for Fröhlich-polaron VMC
 ====================================================
 
-This script is the **entry point** for all numerical simulations performed in the
-project.  It sets up the desired Hilbert space, constructs the corresponding
-Fröhlich(-type) Hamiltonian (static or dynamical, 1D or 3D), selects a neural-
-quantum-state (NQS) ansatz, and launches the NetKet variational Monte-Carlo
-(VMC) optimisation.  After several independent runs it aggregates statistics
-and prints a concise benchmark summary.
+This script is the **entry point** for all numerical simulations performed in
+the project.  It sets up the desired Hilbert space, constructs the 
+corresponding Fröhlich(-type) Hamiltonian (static or dynamical, 1D or 3D), 
+selects a neural-quantum-state (NQS) ansatz, and launches the NetKet 
+variational Monte-Carlo (VMC) optimisation. 
+After several independent runs it aggregates statistics and prints a concise
+benchmark summary.
 
 Layout
 ------
@@ -26,26 +27,40 @@ Layout
 # ──────────────────────────────────────────────────────────────
 
 # 1.1 Scientific Python stack
-import matplotlib.pyplot as plt        # plotting backend used by helpers
-import numpy as np                     # numerical routines
+# plotting backend used by helpers
+import matplotlib.pyplot as plt
+# numerical routines        
+import numpy as np                     
 
 # 1.2 Third-party libraries
-import netket as nk                    # variational-quantum-Monte-Carlo engine
+# variational-quantum-Monte-Carlo engine
+import netket as nk
 import warnings
 from netket.errors import HolomorphicUndeclaredWarning
-warnings.filterwarnings("ignore", category=HolomorphicUndeclaredWarning)  # silence benign NetKet warning
-
+# silence benign NetKet warning
+warnings.filterwarnings("ignore", category=HolomorphicUndeclaredWarning)
 # 1.3 Project-local modules & global parameters
+# model parameters, network & training hyper-params
 from config import (
-    N_max, N_modes, omega, alpha_coupling,    # model parameters
-    alpha, beta, n_samples, lr, n_iter, sr, m_b   # network & training hyper-params
+    N_max, N_modes, omega, alpha_coupling,    
+    alpha, beta, n_samples, lr, n_iter, sr, m_b   
 )
-from models.ffn import FFN, DeepFFN                          # feed-forward NQS variants
+
+# feed-forward NQS variants
+from models.ffn import (FFN, DeepFFN,
+                        DeepFFN2, Conv, 
+                        DeepConv, RBM
+                        )
+
+#static models and dynamical (finite-momentum) models                          
 from hamiltonians.fröhlich import (
-    build_hamilton_1d, build_hamilton_3d,                    # static models
-    build_hamilton_dynamic_1d, build_hamilton_dynamic_3d     # dynamical (finite-momentum) models
+    build_hamilton_1d, build_hamilton_3d,                    
+    build_hamilton_dynamic_1d, 
+    build_hamilton_dynamic_3d     
 )
-from calculations.solver import exact_dense, aprox_sol_sparse, compute_overlap
+from calculations.solver import (exact_dense,
+aprox_sol_sparse, 
+compute_overlap)
 from plotting.visual import energy_convergence, state_chart
 from calculations.simulate import run_all
 
@@ -70,7 +85,8 @@ def evaluation(energy_list, error_list, e_0):
     -------
     tuple (e_mean, total_error)
         • ``e_mean``: run-averaged energy  
-        • ``total_error``: combined uncertainty (run-to-run variance ⊕ sampling error)
+        • ``total_error``: combined uncertainty (run-to-run variance ⊕
+        sampling error)
     """
     energies = np.array(energy_list)
     errors = np.array(error_list)
@@ -116,12 +132,14 @@ def main1d(i: int):
         Reference ground-state energy used for benchmarking.
     """
     # 3.1 Build Hilbert space and Hamiltonian
-    hi = nk.hilbert.Fock(n_max=N_max, N=N_modes)    # local phonon cutoff
+    # local phonon cutoff
+    hi = nk.hilbert.Fock(n_max=N_max, N=N_modes)    
 
     H, e_0 = build_hamilton_1d(hi, N_modes, N_max, omega, alpha_coupling)
     
     # For dynamical Fröhlich (finite impurity momentum) replace with:
-    # H, e_0 = build_hamilton_dynamic_1d(hi, N_modes, N_max, omega, alpha_coupling, P=0.1)
+    # H, e_0 = build_hamilton_dynamic_1d(hi, N_modes, N_max, omega, 
+    # alpha_coupling, P=0.1)
 
     v_0 = None  # eigenvector not required for this benchmark
 
@@ -153,7 +171,9 @@ def main1d(i: int):
 
     # 3.5 Diagnostic plots
     energy_convergence(results, e_0, n_iter)
-    # state_chart(results, v_0, hi)   # wave-function comparison (optional)
+    
+    # wave-function comparison (optional)
+    # state_chart(results, v_0, hi)   
 
     return results, e_0
 
@@ -170,17 +190,21 @@ def main3d(i: int):
     Returns
     -------
     results : list[dict]
-        Output of :pyfunc:`calculations.simulate.run_all` for the selected NQS.
+        Output of :pyfunc:`calculations.simulate.run_all` 
+        for the selected NQS.
     e_0 : float
         Reference ground-state energy used for benchmarking.
     """
     # 3.1 Build Hilbert space and Hamiltonian
-    hi = nk.hilbert.Fock(n_max=N_max, N=(N_modes + 1) ** 3)         # 3-D grid (cube incl. k=0)
+    # 3-D grid (cube incl. k=0)
+    hi = nk.hilbert.Fock(n_max=N_max, N=(N_modes + 1) ** 3)         
     
     # Static (P=0) variant:
     H, e_0 = build_hamilton_3d(hi, N_modes, N_max, omega, alpha_coupling)
+    
     # Dynamical variant:
-    #H, e_0 = build_hamilton_dynamic_3d(hi, N_modes, N_max, omega, alpha_coupling, P=0.1, m_b=m_b)
+    #H, e_0 = build_hamilton_dynamic_3d(hi, N_modes, N_max, omega, 
+    # alpha_coupling, P=0.1, m_b=m_b)
 
     print("Hilbert dimension:              ", hi.size)
     print("Energy to approximate:           ", round(e_0, 4))
@@ -230,8 +254,10 @@ if __name__ == "__main__":
 
     for i in range(2):  # number of independent repetitions
         print(f"\nRun {i + 1}")
+        
         # 1-D benchmark:
         results, e_0 = main1d(i)
+        
         # 3-D benchmark:
         # results, e_0 = main3d(i)
 

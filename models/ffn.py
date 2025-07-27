@@ -2,8 +2,8 @@
 ffn.py ― Collection of neural-quantum-state (NQS) network architectures
 ======================================================================
 
-This module bundles *several* feed-forward and convolutional ansätze that can
-be plugged into NetKet’s :pyclass:`~netket.vqs.MCState`.
+This module bundles *several* feed-forward and convolutional ansätze
+that can be plugged into NetKet’s :pyclass:`~netket.vqs.MCState`.
 
 Implemented models
 ------------------
@@ -12,15 +12,18 @@ Implemented models
 3. **DeepFFN2**      –   four layers + *log cosh* non-linearity
 4. **Conv**      –   1-D convolution followed by `log cosh` activation 
 5. **DeepConv**  –   complex-valued two-stage CNN with custom ReLU
+6. **RBM**       –   Restricted Boltzmann Machine (RBM) with complex weights
 
-All classes inherit from *Flax* ``nn.Module``; therefore the function body
-focuses on tensor operations and **does not** touch optimisation or sampling.
+All classes inherit from *Flax* ``nn.Module``; therefore the function
+body focuses on tensor operations and **does not** touch optimisation 
+or sampling.
 
 Layout
 ------
 1.  Imports
 2.  Dense-based networks   (FFN, DeepFFN, DeepFFN2)
 3.  Convolutional networks (Conv, DeepConv)
+4.  Restricted Boltzmann Machine (RBM)
 
 
 """
@@ -37,9 +40,11 @@ import jax
 # 2. DENSE-BASED NETWORKS
 # ──────────────────────────────────────────────────────────────
 class FFN(nn.Module):
-    # alpha is the factor for the number of neurons in the first dense layer
+    # alpha is the factor for the number of neurons in the
+    # first dense layer
     alpha: int = 1
-    # beta is the factor for the number of neurons in the second dense layer (optional, default = 1)
+    # beta is the factor for the number of neurons in 
+    # the second dense layer (optional, default = 1)
     beta: int = 1
 
     @nn.compact
@@ -49,16 +54,21 @@ class FFN(nn.Module):
 
         Notes
         -----
-        * ``param_dtype=complex`` lets the network learn *complex-valued*
-          weights, enabling a direct representation of the log-amplitude.
+        * ``param_dtype=complex`` lets the network learn 
+        *complex-valued* weights, enabling a direct representation
+        of the log-amplitude.
         """
         # First dense layer
-        dense1 = nn.Dense(features=self.alpha * x.shape[-1], param_dtype=complex)
+        dense1 = nn.Dense(features=self.alpha * x.shape[-1], 
+                          param_dtype=complex)
+        
         y = dense1(x)
         y = nn.relu(y)
 
         # Second dense layer
-        dense2 = nn.Dense(features=self.beta * x.shape[-1], param_dtype=complex)
+        dense2 = nn.Dense(features=self.beta * x.shape[-1], 
+                          param_dtype=complex)
+        
         y = dense2(y)
         y = nn.relu(y)
 
@@ -68,9 +78,11 @@ class FFN(nn.Module):
 
 
 class DeepFFN(nn.Module):
-    # alpha is the factor for the number of neurons in the first dense layer
+    # alpha is the factor for the number of neurons in the 
+    # first dense layer
     alpha: int = 1
-    # beta is the factor for the number of neurons in the second dense layer (optional, default = 1)
+    # beta is the factor for the number of neurons in the 
+    # second dense layer (optional, default = 1)
     beta: int = 1
     gamma: int = 1  # third-layer width multiplier
 
@@ -81,17 +93,23 @@ class DeepFFN(nn.Module):
                       → Dense(γ·dim) → ReLU → Σᵢ yᵢ
         """
         # First dense layer
-        dense1 = nn.Dense(features=self.alpha * x.shape[-1], param_dtype=complex)
+        dense1 = nn.Dense(features=self.alpha * x.shape[-1], 
+                          param_dtype=complex)
+        
         y = dense1(x)
         y = nn.relu(y)
 
         # Second dense layer
-        dense2 = nn.Dense(features=self.beta * x.shape[-1], param_dtype=complex)
+        dense2 = nn.Dense(features=self.beta * x.shape[-1], 
+                          param_dtype=complex)
+        
         y = dense2(y)
         y = nn.relu(y)
 
         # Third dense layer
-        dense3 = nn.Dense(features=self.gamma * x.shape[-1], param_dtype=complex)
+        dense3 = nn.Dense(features=self.gamma * x.shape[-1], 
+                          param_dtype=complex)
+        
         y = dense3(y)
         y = nn.relu(y)
 
@@ -101,8 +119,9 @@ class DeepFFN(nn.Module):
 
 class DeepFFN2(nn.Module):
     """
-    Four-layer fully-connected network that uses the physically motivated
-    non-linearity ``log cosh`` (common in RBM-style NQS literature).
+    Four-layer fully-connected network that uses the 
+    physically motivated
+    non-linearity ``log cosh``.
     """
     alpha: int = 2
     beta: int = 2
@@ -113,21 +132,25 @@ class DeepFFN2(nn.Module):
     def __call__(self, x):
         # Dense-1
         dense1 = nn.Dense(features=self.alpha * x.shape[-1])
+        
         y = dense1(x)
         y = jnp.log(jnp.cosh(y))
 
         # Dense-2
         dense2 = nn.Dense(features=self.beta * x.shape[-1])
+        
         y = dense2(y)
         y = jnp.log(jnp.cosh(y))
 
         # Dense-3
         dense3 = nn.Dense(features=self.gamma * x.shape[-1])
+        
         y = dense3(y)
         y = jnp.log(jnp.cosh(y))
 
         # Dense-4
         dense4 = nn.Dense(features=self.delta * x.shape[-1])
+        
         y = dense4(y)
         y = jnp.log(jnp.cosh(y))
 
@@ -147,7 +170,8 @@ class Conv(nn.Module):
         """
         One-layer 1-D CNN:
 
-            x … (batch, N) → expand-dim → Conv(valid) → log cosh → sum-pool
+            x … (batch, N) → expand-dim → Conv(valid) → log cosh
+            → sum-pool
         """
         # Input: shape (batch, N)
         x = x[..., None]  # (batch, N, 1)
@@ -170,8 +194,8 @@ class Conv(nn.Module):
 
 class DeepConv(nn.Module):
     """
-    Complex-valued two-layer CNN with a polar-ReLU activation that keeps
-    phase information intact (|z| → ReLU(|z|) · e^{i arg(z)}).
+    Complex-valued two-layer CNN with a polar-ReLU activation that
+    keeps phase information intact (|z| → ReLU(|z|) · e^{i arg(z)}).
     """
     channels1: int = 4   # Number of filters in Conv1
     channels2: int = 8   # Number of filters in Conv2
@@ -183,8 +207,12 @@ class DeepConv(nn.Module):
         x = x[..., None]  # shape (batch, length, 1)
 
         # First Conv Layer (real + imag)
-        conv1_real = nn.Conv(features=self.channels1, kernel_size=(4,), padding="SAME")
-        conv1_imag = nn.Conv(features=self.channels1, kernel_size=(4,), padding="SAME")
+        conv1_real = nn.Conv(features=self.channels1, 
+                             kernel_size=(4,), padding="SAME")
+        
+        conv1_imag = nn.Conv(features=self.channels1, 
+                             kernel_size=(4,), padding="SAME")
+        
 
         y_real1 = conv1_real(x)
         y_imag1 = conv1_imag(x)
@@ -196,8 +224,12 @@ class DeepConv(nn.Module):
         activated1 = nn.relu(mag1) * jnp.exp(1j * phase1)
 
         # Second Conv Layer
-        conv2_real = nn.Conv(features=self.channels2, kernel_size=(2,), padding="SAME")
-        conv2_imag = nn.Conv(features=self.channels2, kernel_size=(2,), padding="SAME")
+        conv2_real = nn.Conv(features=self.channels2, 
+                             kernel_size=(2,), padding="SAME")
+        
+        conv2_imag = nn.Conv(features=self.channels2, 
+                             kernel_size=(2,), padding="SAME")
+        
 
         y_real2 = conv2_real(activated1.real)
         y_imag2 = conv2_imag(activated1.imag)
@@ -230,3 +262,35 @@ class DeepConv(nn.Module):
         output = jnp.sum(activated_dense, axis=-1)
 
         return output
+
+# ──────────────────────────────────────────────────────────────
+# 4. RESTRICTED BOLTZMANN MACHINE
+# ──────────────────────────────────────────────────────────────
+class RBM(nn.Module):
+    """
+    Complex RBM log-amplitude
+
+        log ψ(x) = Σ_i a_i x_i +
+                   Σ_j log cosh( b_j + Σ_i W_{ij} x_i )
+
+    Default assumes binary ±1 variables; works for spins or
+    truncated Fock occupations.
+    """
+    n_hidden: int = 32   # number of hidden units
+
+    @nn.compact
+    def __call__(self, x):
+        # affine transform:  x W  +  b   (complex params)
+        W = self.param("W", nn.initializers.normal(), (x.shape[-1],
+                                                      self.n_hidden),
+                       complex)
+        b = self.param("b", nn.initializers.normal(), (self.n_hidden,),
+                       complex)
+        a = self.param("a", nn.initializers.normal(), (x.shape[-1],),
+                       complex)
+
+        pre_act = b + jnp.dot(x, W)      # shape (..., n_hidden)
+        hidden  = jnp.log(jnp.cosh(pre_act))
+
+        log_amp = jnp.sum(a * x, axis=-1) + jnp.sum(hidden, axis=-1)
+        return log_amp                    # complex scalar per sample
