@@ -13,15 +13,14 @@ warnings.filterwarnings("ignore", category=HolomorphicUndeclaredWarning)
 
 from config import (
     N_max, N_modes, omega, alpha_coupling, alpha,
-    beta, n_samples, lr, n_iter, sr, m_b
+    beta, n_samples, lr, n_iter, sr
 )
-from models.ffn import FFN, DeepFFN
+from models.ffn import FFN
 from hamiltonians.fröhlich import (
     build_hamilton_1d, build_hamilton_3d,
-    build_hamilton_dynamic_1d, build_hamilton_dynamic_3d
 )
 from calculations.solver import exact_dense, aprox_sol_sparse, compute_overlap
-from plotting.visual import energy_convergence, state_chart
+from plotting.visual import energy_convergence
 from calculations.simulate import run_all
 
 
@@ -58,8 +57,6 @@ def main1d(i):
     hi = nk.hilbert.Fock(n_max=N_max, N=N_modes)
 
     H, e_0 = build_hamilton_1d(hi, N_modes, N_max, omega, alpha_coupling)
-    # Alternative dynamic Hamiltonian:
-    # H, e_0 = build_hamilton_dynamic_1d(hi, N_modes, N_max, omega, alpha_coupling, P=0.1)
 
     v_0 = None  # Can be used for overlap comparison if reference state is known
 
@@ -81,7 +78,6 @@ def main1d(i):
     print(f"NQS({i + 1}) Deviation: {round(nqs_dev, 2)}%")
 
     energy_convergence(results, e_0, n_iter)
-    # state_chart(results, v_0, hi)
 
     return results, e_0
 
@@ -94,9 +90,7 @@ def main3d(i):
     hi = nk.hilbert.Fock(n_max=N_max, N=(N_modes + 1) ** 3)
 
     # Static vs dynamic Hamiltonian
-    # H, e_0 = build_hamilton_3d(hi, N_modes, N_max, omega, alpha_coupling)
-    H, e_0 = build_hamilton_dynamic_3d(hi, N_modes, N_max, omega, alpha_coupling, P=0.1, m_b=m_b)
-
+    H, e_0 = build_hamilton_3d(hi, N_modes, N_max, omega, alpha_coupling)
     print("Hilbert dimension: ", hi.size)
     print("Energy to approximate: ", round(e_0, 4))
 
@@ -116,7 +110,6 @@ def main3d(i):
     print(f"NQS({i + 1}) Deviation: {round(nqs_dev, 2)}%")
 
     energy_convergence(results, e_0, n_iter)
-    # state_chart(results, v_0, hi)
 
     return results, e_0
 
@@ -132,6 +125,7 @@ if __name__ == "__main__":
     for i in range(2):
         print(f"Run {i + 1}")
         results, e_0 = main1d(i)  # or use: main3d(i)
+        #results, e_0 = main3d(i)
         energy_list.append(results[0]["energy"])
         error_list.append(results[0]["error"])
 
