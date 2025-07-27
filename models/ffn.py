@@ -9,9 +9,9 @@ Implemented models
 ------------------
 1. **FFN**       –   two fully-connected layers with ReLU  
 2. **DeepFFN**   –   three fully-connected layers with ReLU  
-3. **DeepFFN2**      –   four layers + *log cosh* non-linearity, ends in a scalar Dense  
-4. **Conv**      –   1-D convolution followed by `log cosh` and global pooling  
-5. **DeepConv**  –   complex-valued two-stage CNN with custom polar ReLU
+3. **DeepFFN2**      –   four layers + *log cosh* non-linearity
+4. **Conv**      –   1-D convolution followed by `log cosh` activation 
+5. **DeepConv**  –   complex-valued two-stage CNN with custom ReLU
 
 All classes inherit from *Flax* ``nn.Module``; therefore the function body
 focuses on tensor operations and **does not** touch optimisation or sampling.
@@ -22,8 +22,7 @@ Layout
 2.  Dense-based networks   (FFN, DeepFFN, DeepFFN2)
 3.  Convolutional networks (Conv, DeepConv)
 
-The code intentionally remains framework-agnostic beyond Flax/JAX so it can be
-re-used in other variational-quantum-Monte-Carlo engines if desired.
+
 """
 
 # ──────────────────────────────────────────────────────────────

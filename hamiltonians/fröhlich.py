@@ -18,7 +18,6 @@ Each builder returns a tuple ``(H, e_0)`` where
 * ``e_0`` is the **analytical (or perturbative) ground-state energy**
   used as a benchmark reference.
 
-No global state is kept – every call is independent.
 
 Layout
 ------

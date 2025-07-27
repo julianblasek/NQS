@@ -12,10 +12,7 @@ Routines
 2.  `state_chart`        – bar-chart comparison of *|ψ|* amplitudes between
     the exact ground state and the learned variational states.
 
-Both functions save a *PDF* copy of the figure to the local *plots/*
-directory **and** show an interactive window if running in a desktop
-environment.  Modify the hard-coded path strings if you need a different
-output location.
+Modify the hard-coded path strings for different output location.
 """
 
 # ──────────────────────────────────────────────────────────────
@@ -28,6 +25,7 @@ import numpy as np
 # ──────────────────────────────────────────────────────────────
 # 2. ENERGY-CONVERGENCE PLOT
 # ──────────────────────────────────────────────────────────────
+path="/Users/julianblasek/local/praktikum/plots/"
 def energy_convergence(results, e_0, n_iter):
     """
     Plot the energy convergence for *each* model in ``results``.
@@ -77,7 +75,7 @@ def energy_convergence(results, e_0, n_iter):
     ax.legend()
 
     plt.tight_layout()
-    plt.savefig("/Users/julianblasek/local/praktikum/plots/energy_convergence.pdf")
+    plt.savefig(f"{path}/energy_convergence.pdf")
     plt.show()
     return  # explicit for clarity
 
@@ -139,6 +137,6 @@ def state_chart(results, v_0, hi):
     axes[-1].set_xlabel("Basis coordinate")
 
     plt.tight_layout()
-    plt.savefig("/Users/julianblasek/local/praktikum/plots/state_chart.pdf")
+    plt.savefig(f"{path}/state_chart.pdf")
     plt.show()
     return

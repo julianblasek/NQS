@@ -12,8 +12,6 @@ This module keeps **all run-time logistics** in one place:
   human-readable TSV file, and returns a list of dictionaries
   compatible with the plotting utilities.
 
-Nothing in here touches the physics of the model – we only deal with
-sampling, optimisation, and I/O.
 
 Layout
 ------

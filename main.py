@@ -2,7 +2,7 @@
 main.py ― Driver for Fröhlich-polaron VMC
 ====================================================
 
-This script is the **entry point** for all numerical experiments performed in the
+This script is the **entry point** for all numerical simulations performed in the
 project.  It sets up the desired Hilbert space, constructs the corresponding
 Fröhlich(-type) Hamiltonian (static or dynamical, 1D or 3D), selects a neural-
 quantum-state (NQS) ansatz, and launches the NetKet variational Monte-Carlo
@@ -19,8 +19,6 @@ Layout
 3.  Workflows for specific geometries   (``main1d()``, ``main3d()``)
 4.  Script entry point                 (``if __name__ == "__main__":``)
 
-Nothing in this file *defines* physical models or NQS architectures – those
-live in the dedicated sub-packages.  Here we only *orchestrate* them.
 """
 
 # ──────────────────────────────────────────────────────────────
@@ -178,12 +176,11 @@ def main3d(i: int):
     """
     # 3.1 Build Hilbert space and Hamiltonian
     hi = nk.hilbert.Fock(n_max=N_max, N=(N_modes + 1) ** 3)         # 3-D grid (cube incl. k=0)
+    
     # Static (P=0) variant:
-    # H, e_0 = build_hamilton_3d(hi, N_modes, N_max, omega, alpha_coupling)
-    # Dynamical variant (default):
-    H, e_0 = build_hamilton_dynamic_3d(
-        hi, N_modes, N_max, omega, alpha_coupling, P=0.1, m_b=m_b
-    )
+    H, e_0 = build_hamilton_3d(hi, N_modes, N_max, omega, alpha_coupling)
+    # Dynamical variant:
+    #H, e_0 = build_hamilton_dynamic_3d(hi, N_modes, N_max, omega, alpha_coupling, P=0.1, m_b=m_b)
 
     print("Hilbert dimension:              ", hi.size)
     print("Energy to approximate:           ", round(e_0, 4))
@@ -233,9 +230,9 @@ if __name__ == "__main__":
 
     for i in range(2):  # number of independent repetitions
         print(f"\nRun {i + 1}")
-        # 1-D static benchmark:
+        # 1-D benchmark:
         results, e_0 = main1d(i)
-        # 3-D dynamic benchmark:
+        # 3-D benchmark:
         # results, e_0 = main3d(i)
 
         energy_list.append(results[0]["energy"])
