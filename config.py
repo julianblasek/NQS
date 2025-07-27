@@ -14,14 +14,10 @@ N_modes = 24      # Number of phonon modes (e.g., 24 for 1D, 2 for 3D)
 omega = 1.0            # Phonon frequency
 alpha_coupling = 1.0   # Impurity-phonon coupling strength (α) (typ. 1 for both 1D and 3D)
 
-# ------------------------------
-# Network and Training Parameters
-# ------------------------------
-
-alpha = 2              # Scaling factor for the width of the first dense (hidden) layer
-beta = 1               # Scaling factor for the width of the second dense layer
-n_samples = 2**14      # Number of Monte Carlo samples per VMC iteration
-lr = 0.01              # Learning rate for stochastic optimization
-n_iter = 500           # Number of training iterations 
-sr = 0.01              # Diagonal shift (ε_SR) for stochastic reconfiguration (preconditioning)
-m_b = 0.5              # Impurity mass (relevant for dynamical Hamiltonians)
+# Netzwerk-/Trainingsparameter
+alpha = 2           # Faktor für Anzahl der Neuronen im 1. Dense-Layer
+beta = 1           # Faktor für Anzahl der Neuronen im 2. Dense-Layer
+n_samples = 2**14   # Anzahl der Samples im VMC 2^14 1d
+lr = 0.01         # Lernrate 0.01 1d
+n_iter = 500        # Anzahl der Trainingsiterationen 500 1d
+sr=0.01          # Diagonalverschiebung für den SR-Preconditioner 0.01 1d
