@@ -41,7 +41,7 @@ def energy_convergence(results, e_0,n_iter):
     ax.grid(True)
 
     plt.tight_layout()
-    plt.savefig("/Users/julianblasek/master_local/praktikum/plots/energy_convergence.pdf")
+    plt.savefig("/Users/julianblasek/local/praktikum/plots/energy_convergence.pdf")
     plt.show()
     return
 
@@ -90,6 +90,6 @@ def state_chart(results, v_0, hi):
 
     axes[-1].set_xlabel("Basis coordinate")
     plt.tight_layout()
-    plt.savefig("/Users/julianblasek/master_local/praktikum/plots/state_chart.pdf")
+    plt.savefig("/Users/julianblasek/local/praktikum/plots/state_chart.pdf")
     plt.show()
     return

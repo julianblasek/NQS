@@ -7,9 +7,9 @@ from netket.errors import HolomorphicUndeclaredWarning
 warnings.filterwarnings("ignore", category=HolomorphicUndeclaredWarning)
 
 # Import Modules
-from config import N_max, N_modes, omega, alpha_coupling, alpha, beta, n_samples, lr, n_iter, sr
+from config import N_max, N_modes, omega, alpha_coupling, alpha, beta, n_samples, lr, n_iter, sr, m_b
 from models.ffn import FFN, DeepFFN
-from hamiltonians.fröhlich import build_hamilton_1d, build_hamilton_3d
+from hamiltonians.fröhlich import build_hamilton_1d, build_hamilton_3d, build_hamilton_dynamic_1d,build_hamilton_dynamic_3d
 from calculations.solver import exact_dense, aprox_sol_sparse, compute_overlap
 from plotting.visual import energy_convergence, state_chart
 from calculations.simulate import run_all
@@ -43,6 +43,7 @@ def main1d(i):
     hi = nk.hilbert.Fock(n_max=N_max, N=N_modes) # 1D
     
     H, e_0 = build_hamilton_1d(hi, N_modes, N_max, omega, alpha_coupling)
+    #H,e_0 = build_hamilton_dynamic_1d(hi, N_modes, N_max, omega, alpha_coupling,P=0.1)
     #e_0, v_0 = exact_dense(H)
     #e_0, v_0 = aprox_sol_sparse(H)
     v_0 = None
@@ -71,7 +72,8 @@ def main1d(i):
 
 def main3d(i):
     hi = nk.hilbert.Fock(n_max=N_max, N=(N_modes+1)**3) # 3D
-    H, e_0 = build_hamilton_3d(hi, N_modes, N_max, omega, alpha_coupling)
+    #H, e_0 = build_hamilton_3d(hi, N_modes, N_max, omega, alpha_coupling)
+    H, e_0 = build_hamilton_dynamic_3d(hi, N_modes, N_max, omega, alpha_coupling,P=0.1,m_b=m_b)
     print("Hilbert dimension: ", hi.size)
     print("Energy to approximate: ", round(e_0,4))
     #e_0, v_0 = exact_dense(H)
@@ -105,7 +107,7 @@ if __name__ == "__main__":
     error_list = []
     for i in range(2):
         print(f"Run {i+1}")
-        #results,e_0 = main1d(i)
+        #results,e_0 = main3d(i)
         results,e_0 = main1d(i)
         energy_list.append(results[0]["energy"])
         error_list.append(results[0]["error"])

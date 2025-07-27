@@ -6,7 +6,7 @@ from .solver import compute_overlap
 import netket as nk
 
 
-log_path = "/Users/julianblasek/master_local/praktikum/plots/results.tsv"
+log_path = "/Users/julianblasek/local/praktikum/plots/results.tsv"
 
 def run_single(model_class, model_kwargs, train_params, hi, H, seed=None):
     # --- VMC-Setup ---
@@ -25,7 +25,6 @@ def run_single(model_class, model_kwargs, train_params, hi, H, seed=None):
     log = nk.logging.RuntimeLog()
     
     
-    #maybe for schleife mit different n_samples über teilebereiche von n_iter
     gs.run(n_iter=n_iter, out=log)
     return vstate, log
 
